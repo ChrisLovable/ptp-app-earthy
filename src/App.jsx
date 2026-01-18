@@ -12,6 +12,7 @@ function App() {
   const [view, setView] = useState('coach');
   const [loading, setLoading] = useState(true);
   const [updateMessage, setUpdateMessage] = useState(null);
+  const [isPlayerLinkSession, setIsPlayerLinkSession] = useState(false);
   const [showAddPlayer, setShowAddPlayer] = useState(false);
   const [newPlayer, setNewPlayer] = useState({
     name: '',
@@ -160,6 +161,7 @@ function App() {
 
       setCurrentUser(player);
       setView('player');
+      setIsPlayerLinkSession(true);
     }
   };
 
@@ -399,7 +401,13 @@ function App() {
 
   const handleLogout = () => {
     setCurrentUser(null);
-    setView('coach');
+    // If logging out from a player link session, don't show coach view - show logged out state
+    if (isPlayerLinkSession) {
+      setView('logged-out');
+      setIsPlayerLinkSession(false);
+    } else {
+      setView('coach');
+    }
     window.history.pushState({}, '', window.location.pathname);
   };
 
@@ -426,6 +434,18 @@ function App() {
     );
   }
 
+  // Show logged out state for athletes who logged out (security: prevent access to coach view)
+  if (view === 'logged-out') {
+    return (
+      <div className="logged-out-container">
+        <div className="logged-out-message">
+          <h2>Logged Out</h2>
+          <p>You have been successfully logged out.</p>
+        </div>
+      </div>
+    );
+  }
+
   if (selectedPlayer) {
     return (
       <PlayerEditor
@@ -437,6 +457,7 @@ function App() {
     );
   }
 
+  // Only show CoachView if not coming from a player link session
   return (
     <CoachView
       players={players}

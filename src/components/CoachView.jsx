@@ -136,12 +136,6 @@ function CoachView({
         </div>
 
         <div className="coach-nav">
-          <button className="nav-btn active">
-            📋 Show all Players
-          </button>
-          <button className="add-player-btn" onClick={() => setShowAddPlayer(true)}>
-            ➕ Add New Player
-          </button>
           <div className="search-container">
             <input
               type="text"
@@ -156,6 +150,15 @@ function CoachView({
               </div>
             )}
           </div>
+          <button className="nav-btn active">
+            📋 Show all Players
+          </button>
+          <button className="add-player-btn" onClick={() => setShowAddPlayer(true)}>
+            ➕ Add New Player
+          </button>
+          <button className="nav-btn dashboard-btn">
+            🏠 Dashboard
+          </button>
         </div>
 
         {filteredPlayers.length === 0 ? (
