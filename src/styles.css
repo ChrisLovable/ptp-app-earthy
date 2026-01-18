@@ -448,7 +448,7 @@
         }
 
         .target-item {
-            background: linear-gradient(145deg, #1f2831, #1a2229);
+            background: rgba(90, 100, 110, 0.7);
             border: 1px solid rgba(255, 255, 255, 0.15);
             padding: 10px 8px;
             border-radius: 14px;
@@ -505,7 +505,7 @@
         }
 
         .plan-section {
-            background: var(--glass-base);
+            background: rgba(90, 100, 110, 0.7);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.04);
@@ -843,7 +843,7 @@
         }
 
         .player-card {
-            background: rgba(50, 57, 69, 0.6);
+            background: rgba(90, 100, 110, 0.7);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.04);
@@ -890,14 +890,16 @@
 
         .player-card p {
             font-size: 14px;
-            color: var(--text-light);
+            color: #000000;
             margin-bottom: 12px;
+            font-weight: 500;
         }
 
         .player-card .player-last-updated {
             font-size: 13px;
-            color: var(--text-light);
+            color: #000000;
             margin-bottom: 14px;
+            font-weight: 500;
         }
 
         .player-card .player-targets-mini {
