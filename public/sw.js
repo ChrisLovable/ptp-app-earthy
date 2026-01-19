@@ -1,6 +1,6 @@
 // Update this version number when deploying a new version
-const CACHE_NAME = 'ptp-v2';
-const VERSION = '2.0.0';
+const CACHE_NAME = 'ptp-v3';
+const VERSION = '3.0.0';
 const urlsToCache = [
   '/',
   '/index.html',
