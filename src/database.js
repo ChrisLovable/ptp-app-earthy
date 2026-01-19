@@ -38,7 +38,7 @@ export const database = {
     }
   },
 
-  // Get single player
+  // Get single player by ID
   async getPlayer(playerId) {
     try {
       const { data, error } = await supabase
@@ -55,22 +55,107 @@ export const database = {
     }
   },
 
+  // Get single player by secure token
+  async getPlayerByToken(shareToken) {
+    try {
+      const { data, error } = await supabase
+        .from('players')
+        .select('*')
+        .eq('share_token', shareToken)
+        .single()
+      
+      if (error) {
+        // If column doesn't exist, return null gracefully
+        if (error.message.includes('column') || error.message.includes('share_token')) {
+          console.warn('share_token column not found - database migration may be needed')
+          return null
+        }
+        throw error
+      }
+      return toCamelCase(data)
+    } catch (error) {
+      console.error('Error getting player by token:', error)
+      return null
+    }
+  },
+
+  // Generate secure share token
+  generateSecureToken() {
+    // Generate a cryptographically secure random token (64 character hex string)
+    if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
+      const array = new Uint8Array(32)
+      crypto.getRandomValues(array)
+      return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('')
+    } else {
+      // Fallback for environments without crypto support
+      return Array.from({ length: 32 }, () => 
+        Math.floor(Math.random() * 256).toString(16).padStart(2, '0')
+      ).join('')
+    }
+  },
+
+  // Generate or update share token for a player
+  async generateShareToken(playerId) {
+    try {
+      const token = this.generateSecureToken()
+      const { data, error } = await supabase
+        .from('players')
+        .update({ share_token: token })
+        .eq('id', playerId)
+        .select()
+        .single()
+      
+      if (error) {
+        // If column doesn't exist, return the player without token
+        if (error.message.includes('column') || error.message.includes('share_token')) {
+          console.warn('share_token column not found - database migration may be needed')
+          const player = await this.getPlayer(playerId)
+          return player
+        }
+        throw error
+      }
+      return toCamelCase(data)
+    } catch (error) {
+      console.error('Error generating share token:', error)
+      throw error
+    }
+  },
+
   // Add new player
   async addPlayer(playerData) {
     try {
       const today = new Date().toISOString().split('T')[0]
+      const shareToken = this.generateSecureToken()
       
-      const newPlayer = toSnakeCase({
+      const playerWithoutToken = toSnakeCase({
         ...playerData,
         lastUpdated: today,
         createdAt: new Date().toISOString()
       })
 
-      const { data, error } = await supabase
+      // Try with token first, fallback to without if column doesn't exist
+      let newPlayer = {
+        ...playerWithoutToken,
+        share_token: shareToken
+      }
+
+      let { data, error } = await supabase
         .from('players')
         .insert([newPlayer])
         .select()
         .single()
+      
+      // If error is due to missing column, try without token
+      if (error && (error.message.includes('column') || error.message.includes('share_token'))) {
+        const { data: dataWithoutToken, error: errorWithoutToken } = await supabase
+          .from('players')
+          .insert([playerWithoutToken])
+          .select()
+          .single()
+        
+        if (errorWithoutToken) throw errorWithoutToken
+        return toCamelCase(dataWithoutToken)
+      }
       
       if (error) throw error
       return toCamelCase(data)

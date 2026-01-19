@@ -88,14 +88,36 @@ function App() {
 
   const checkPlayerLink = () => {
     const urlParams = new URLSearchParams(window.location.search);
+    // Support both old (?player=ID) and new (?token=TOKEN) formats
+    const playerToken = urlParams.get('token');
     const playerId = urlParams.get('player');
-    if (playerId) {
-      handlePlayerLinkLogin(playerId);
+    
+    if (playerToken) {
+      handlePlayerLinkLogin(playerToken);
+    } else if (playerId) {
+      // Fallback to old format if token not available (backward compatibility)
+      handlePlayerLinkLoginById(playerId);
     }
   };
 
-  const handlePlayerLinkLogin = async (playerId) => {
+  // New secure token-based login
+  const handlePlayerLinkLogin = async (playerToken) => {
+    const player = await database.getPlayerByToken(playerToken);
+    if (player) {
+      await loginPlayer(player);
+    }
+  };
+
+  // Fallback: old ID-based login (backward compatibility)
+  const handlePlayerLinkLoginById = async (playerId) => {
     const player = await database.getPlayer(playerId);
+    if (player) {
+      await loginPlayer(player);
+    }
+  };
+
+  // Shared login logic
+  const loginPlayer = async (player) => {
     if (player) {
       // Migrate old data format
       if (player.targets && player.targets.skinfolds && !player.targets.target1) {
@@ -227,15 +249,44 @@ function App() {
     }
   };
 
-  const handleCopyPlayerLink = (playerId, e) => {
+  const handleCopyPlayerLink = async (playerId, e) => {
     e.stopPropagation();
-    const baseUrl = window.location.origin + window.location.pathname;
-    const playerLink = `${baseUrl}?player=${playerId}`;
-    
-    navigator.clipboard.writeText(playerLink).then(() => {
-      const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(playerLink)}`;
-      window.open(whatsappUrl, '_blank');
-    });
+    try {
+      const player = await database.getPlayer(playerId);
+      if (!player) return;
+      
+      const baseUrl = window.location.origin + window.location.pathname;
+      let playerLink;
+      
+      // Try to use secure token if available
+      let shareToken = player.shareToken;
+      if (!shareToken) {
+        try {
+          // Generate token if doesn't exist
+          const updatedPlayer = await database.generateShareToken(playerId);
+          shareToken = updatedPlayer?.shareToken;
+        } catch (error) {
+          console.warn('Could not generate token, using ID fallback:', error);
+        }
+      }
+      
+      if (shareToken) {
+        // Use secure token-based link
+        playerLink = `${baseUrl}?token=${shareToken}`;
+      } else {
+        // Fallback to ID-based link if token system not available
+        playerLink = `${baseUrl}?player=${playerId}`;
+      }
+      
+      navigator.clipboard.writeText(playerLink).then(() => {
+        // Link copied to clipboard
+        console.log('Link copied to clipboard:', playerLink);
+      }).catch((error) => {
+        console.error('Failed to copy link:', error);
+      });
+    } catch (error) {
+      console.error('Error generating share link:', error);
+    }
   };
 
   const handleExportData = async () => {
@@ -400,15 +451,39 @@ function App() {
   };
 
   const handleLogout = () => {
-    setCurrentUser(null);
-    // If logging out from a player link session, don't show coach view - show logged out state
+    // If logging out from a player link session (athlete view), close the app
     if (isPlayerLinkSession) {
-      setView('logged-out');
+      setCurrentUser(null);
       setIsPlayerLinkSession(false);
+      // Clear URL to prevent back button access
+      window.history.replaceState({}, '', window.location.pathname);
+      
+      // Close the app/window
+      if (window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches) {
+        // For PWA/standalone mode
+        window.close();
+        // Fallback: redirect to blank page if close doesn't work
+        setTimeout(() => {
+          window.location.href = 'about:blank';
+        }, 100);
+      } else {
+        // For browser tabs
+        window.location.href = 'about:blank';
+        setTimeout(() => {
+          try {
+            window.close();
+          } catch (e) {
+            // If close fails, at least we redirected away
+            console.log('Could not close window (browser security)');
+          }
+        }, 100);
+      }
     } else {
+      // Coach logout
+      setCurrentUser(null);
       setView('coach');
+      window.history.pushState({}, '', window.location.pathname);
     }
-    window.history.pushState({}, '', window.location.pathname);
   };
 
   const showMessage = (message) => {

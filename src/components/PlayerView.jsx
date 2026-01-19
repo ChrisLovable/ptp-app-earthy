@@ -95,7 +95,7 @@ function PlayerView({ player, onLogout }) {
           {formatFullDate(player.lastUpdated)} ({getDaysAgo(player.lastUpdated)})
         </p>
         <button className="logout-btn" onClick={onLogout}>
-          Logout
+          Close App
         </button>
       </div>
 

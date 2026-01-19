@@ -9,6 +9,7 @@ create table players (
   id bigserial primary key,
   name text not null,
   email text not null,
+  share_token text unique not null,
   
   -- Target titles
   target_titles jsonb default '{
@@ -92,6 +93,7 @@ create table player_history (
 
 -- Indexes for performance
 create index idx_players_last_updated on players(last_updated desc);
+create index idx_players_share_token on players(share_token);
 create index idx_player_history_player_id on player_history(player_id);
 create index idx_player_history_saved_at on player_history(saved_at desc);
 
@@ -109,10 +111,11 @@ create policy "Enable read access for all users" on player_history for select us
 create policy "Enable insert for all users" on player_history for insert with check (true);
 
 -- Insert demo data
-insert into players (name, email, target_titles, targets, target_visible, card_titles, plan, card_visible, last_updated)
+insert into players (name, email, share_token, target_titles, targets, target_visible, card_titles, plan, card_visible, last_updated)
 values (
   'Marcus Johnson',
   'marcus@team.com',
+  encode(gen_random_bytes(32), 'hex'),
   '{"target1": "Skinfolds", "target2": "Bronco", "target3": "CMJ", "target4": "Body Weight", "target5": "VO2 Max", "target6": "Flexibility"}'::jsonb,
   '{"target1": "45mm", "target2": "4:20", "target3": "65cm", "target4": "85kg", "target5": "52 ml/kg/min", "target6": ""}'::jsonb,
   '{"target1": true, "target2": true, "target3": true, "target4": true, "target5": true, "target6": false}'::jsonb,

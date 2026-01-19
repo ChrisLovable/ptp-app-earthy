@@ -197,9 +197,9 @@ function CoachView({
                   onClick={(e) => handleCopyClick(player.id, e)}
                 >
                   {copiedPlayerId === player.id ? (
-                    <>✓ Shared!</>
+                    <>✓ Copied!</>
                   ) : (
-                    <>📱 Share via WhatsApp</>
+                    <>🔗 Copy link</>
                   )}
                 </button>
                 <button 
