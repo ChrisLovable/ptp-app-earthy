@@ -14,6 +14,8 @@ function App() {
   const [updateMessage, setUpdateMessage] = useState(null);
   const [isPlayerLinkSession, setIsPlayerLinkSession] = useState(false);
   const [showAddPlayer, setShowAddPlayer] = useState(false);
+  const [showUpdatePrompt, setShowUpdatePrompt] = useState(false);
+  const [waitingWorker, setWaitingWorker] = useState(null);
   const [newPlayer, setNewPlayer] = useState({
     name: '',
     email: '',
@@ -77,6 +79,7 @@ function App() {
   useEffect(() => {
     loadPlayers();
     checkPlayerLink();
+    checkForUpdates();
   }, []);
 
   const loadPlayers = async () => {
@@ -84,6 +87,58 @@ function App() {
     const playersData = await database.getAllPlayers();
     setPlayers(playersData);
     setLoading(false);
+  };
+
+  // Check for service worker updates
+  const checkForUpdates = () => {
+    if ('serviceWorker' in navigator) {
+      // Listen for update available event
+      window.addEventListener('sw-update-available', () => {
+        navigator.serviceWorker.getRegistration().then((registration) => {
+          if (registration && registration.waiting) {
+            setWaitingWorker(registration.waiting);
+            setShowUpdatePrompt(true);
+          }
+        });
+      });
+
+      // Check immediately
+      navigator.serviceWorker.getRegistration().then((registration) => {
+        if (registration) {
+          registration.update();
+          
+          // Check if there's a waiting worker
+          if (registration.waiting) {
+            setWaitingWorker(registration.waiting);
+            setShowUpdatePrompt(true);
+          }
+
+          // Listen for updates
+          registration.addEventListener('updatefound', () => {
+            const newWorker = registration.installing;
+            if (newWorker) {
+              newWorker.addEventListener('statechange', () => {
+                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                  setWaitingWorker(newWorker);
+                  setShowUpdatePrompt(true);
+                }
+              });
+            }
+          });
+        }
+      });
+    }
+  };
+
+  // Handle update installation
+  const handleUpdateApp = () => {
+    if (waitingWorker) {
+      // Send message to service worker to skip waiting
+      waitingWorker.postMessage({ type: 'SKIP_WAITING' });
+      
+      // Reload the page to activate new service worker
+      window.location.reload();
+    }
   };
 
   const checkPlayerLink = () => {
@@ -534,22 +589,40 @@ function App() {
 
   // Only show CoachView if not coming from a player link session
   return (
-    <CoachView
-      players={players}
-      onSelectPlayer={setSelectedPlayer}
-      onAddPlayer={handleAddPlayer}
-      onDeletePlayer={handleDeletePlayer}
-      onCopyPlayerLink={handleCopyPlayerLink}
-      onExportData={handleExportData}
-      onExportToExcel={handleExportToExcel}
-      onImportData={handleImportData}
-      onLogout={handleLogout}
-      showAddPlayer={showAddPlayer}
-      setShowAddPlayer={setShowAddPlayer}
-      newPlayer={newPlayer}
-      setNewPlayer={setNewPlayer}
-      updateMessage={updateMessage}
-    />
+    <>
+      {showUpdatePrompt && (
+        <div className="update-prompt-overlay">
+          <div className="update-prompt">
+            <h2>🔄 Update Available</h2>
+            <p>A new version of the app is available. Please reload to get the latest features and improvements.</p>
+            <div className="update-prompt-buttons">
+              <button className="update-btn-primary" onClick={handleUpdateApp}>
+                Reload Now
+              </button>
+              <button className="update-btn-secondary" onClick={() => setShowUpdatePrompt(false)}>
+                Later
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      <CoachView
+        players={players}
+        onSelectPlayer={setSelectedPlayer}
+        onAddPlayer={handleAddPlayer}
+        onDeletePlayer={handleDeletePlayer}
+        onCopyPlayerLink={handleCopyPlayerLink}
+        onExportData={handleExportData}
+        onExportToExcel={handleExportToExcel}
+        onImportData={handleImportData}
+        onLogout={handleLogout}
+        showAddPlayer={showAddPlayer}
+        setShowAddPlayer={setShowAddPlayer}
+        newPlayer={newPlayer}
+        setNewPlayer={setNewPlayer}
+        updateMessage={updateMessage}
+      />
+    </>
   );
 }
 

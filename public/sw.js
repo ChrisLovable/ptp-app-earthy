@@ -1,4 +1,6 @@
-const CACHE_NAME = 'ptp-v1';
+// Update this version number when deploying a new version
+const CACHE_NAME = 'ptp-v2';
+const VERSION = '2.0.0';
 const urlsToCache = [
   '/',
   '/index.html',
@@ -29,6 +31,13 @@ self.addEventListener('activate', (event) => {
       );
     }).then(() => self.clients.claim())
   );
+});
+
+// Listen for skip waiting message
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
 });
 
 // Fetch event

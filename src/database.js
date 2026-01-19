@@ -94,9 +94,17 @@ export const database = {
     }
   },
 
-  // Generate or update share token for a player
+  // Generate share token for a player (only if doesn't exist - token is permanent for life of player)
   async generateShareToken(playerId) {
     try {
+      // First check if player already has a token - never overwrite existing token
+      const existingPlayer = await this.getPlayer(playerId)
+      if (existingPlayer && existingPlayer.shareToken) {
+        // Token already exists - return player with existing token (never regenerate)
+        return existingPlayer
+      }
+      
+      // Only generate if token doesn't exist
       const token = this.generateSecureToken()
       const { data, error } = await supabase
         .from('players')

@@ -2029,13 +2029,10 @@
 
         .player-header h1 {
             font-size: 32px;
-            background: #FE9949;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            color: #FE9949;
             font-weight: 800;
-            filter: drop-shadow(0 2px 4px rgba(31, 40, 71, 0.9));
             margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(31, 40, 71, 0.5);
         }
 
         .form-group {
@@ -2331,6 +2328,104 @@
             font-size: 32px;
             margin-bottom: 16px;
             color: var(--text);
+        }
+
+        .logged-out-message p {
+            margin: 0;
+        }
+
+        /* Update Prompt Styles */
+        .update-prompt-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(31, 40, 71, 0.9);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            padding: 20px;
+        }
+
+        .update-prompt {
+            background: linear-gradient(145deg, #2D375F, #232D50);
+            border: 2px solid rgba(254, 153, 73, 0.4);
+            border-radius: 24px;
+            padding: 32px;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 
+                0 20px 60px rgba(31, 40, 71, 0.9),
+                0 0 0 1px rgba(255, 255, 255, 0.1) inset,
+                0 8px 32px rgba(254, 153, 73, 0.2);
+            text-align: center;
+        }
+
+        .update-prompt h2 {
+            color: #FE9949;
+            font-size: 24px;
+            font-weight: 800;
+            margin: 0 0 16px 0;
+        }
+
+        .update-prompt p {
+            color: white;
+            font-size: 16px;
+            line-height: 1.6;
+            margin: 0 0 24px 0;
+        }
+
+        .update-prompt-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        .update-btn-primary {
+            background: linear-gradient(145deg, #FE9949, #E8893F);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 
+                0 4px 12px rgba(254, 153, 73, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            transition: all 0.2s ease;
+        }
+
+        .update-btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 
+                0 6px 16px rgba(254, 153, 73, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        .update-btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .update-btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .update-btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
         }
 
         .logged-out-message p {
