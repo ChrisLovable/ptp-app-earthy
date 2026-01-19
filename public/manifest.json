@@ -4,8 +4,8 @@
   "description": "Strength & Conditioning Player Training Plan Management",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0a0e14",
-  "theme_color": "#000000",
+  "background_color": "#0F1420",
+  "theme_color": "#0F1420",
   "orientation": "any",
   "icons": [
     {
