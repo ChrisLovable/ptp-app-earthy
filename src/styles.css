@@ -171,12 +171,8 @@ select:focus {
 }
 
 .mobile-header {
-    background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.7)),
-                linear-gradient(to bottom, 
-                    #FF9933 0%, #FF9933 33.33%, 
-                    #FFFFFF 33.33%, #FFFFFF 66.66%, 
-                    #138808 66.66%, #138808 100%);
-    background-size: cover;
+    background: var(--card-bg);
+    border-bottom: 1px solid var(--border-color);
     color: white;
     padding: 20px;
     position: sticky;
@@ -365,12 +361,8 @@ select:focus {
 }
 
 .coach-header {
-    background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.8)),
-                linear-gradient(to bottom, 
-                    #FF9933 0%, #FF9933 33.33%, 
-                    #FFFFFF 33.33%, #FFFFFF 66.66%, 
-                    #138808 66.66%, #138808 100%);
-    background-size: cover;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
     color: white;
     padding: 40px 40px;
     border-radius: 20px;
@@ -509,8 +501,8 @@ select:focus {
     width: 100%;
     margin-top: 15px;
     padding: 10px 16px;
-    background: linear-gradient(135deg, #138808, #0d6305);
-    color: white;
+    background: var(--status-completed);
+    color: #000000;
     border: none;
     border-radius: 8px;
     font-size: 13px;
@@ -526,11 +518,12 @@ select:focus {
 
 .copy-link-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(19, 136, 8, 0.4);
+    box-shadow: 0 8px 20px rgba(0, 255, 0, 0.4);
 }
 
 .copy-link-btn.copied {
-    background: linear-gradient(135deg, #FF9933, #E8891E);
+    background: var(--accent-orange);
+    color: #000000;
 }
 
 .delete-player-btn {
@@ -701,6 +694,28 @@ select:focus {
     font-size: 22px;
     margin-bottom: 15px;
     color: var(--dark);
+}
+
+/* Rich text training plan editor */
+.rich-text-editor {
+    width: 100%;
+    padding: 16px;
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    font-family: 'Work Sans', sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    min-height: 220px;
+    background: #ffffff;
+    color: var(--text);
+    overflow-y: visible;
+    box-sizing: border-box;
+}
+
+.rich-text-editor:focus-within {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
 }
 
 textarea {
