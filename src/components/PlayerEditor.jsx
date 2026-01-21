@@ -3,6 +3,14 @@ import { useState } from 'react';
 function PlayerEditor({ player, onUpdate, onCancel, updateMessage }) {
   const [editedPlayer, setEditedPlayer] = useState(player);
 
+  const handleAutoResize = (event) => {
+    const el = event.target;
+    if (el) {
+      el.style.height = 'auto';
+      el.style.height = `${el.scrollHeight}px`;
+    }
+  };
+
   const handleSave = () => {
     onUpdate(editedPlayer);
   };
@@ -107,13 +115,14 @@ function PlayerEditor({ player, onUpdate, onCancel, updateMessage }) {
               })}
             />
             <label>Key Focus:</label>
-            <input 
-              type="text" 
+            <textarea
+              className="auto-expand"
               value={editedPlayer.plan?.[`card${num}Focus`] || ''}
               onChange={(e) => setEditedPlayer({
                 ...editedPlayer,
                 plan: {...editedPlayer.plan, [`card${num}Focus`]: e.target.value}
               })}
+              onInput={handleAutoResize}
               placeholder="e.g. Focus on time under tension"
             />
             <label>Training Plan:</label>
